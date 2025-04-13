@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-Commerce Demo</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 0 auto; padding: 20px; }
+        button, input { padding: 8px; margin: 5px; }
+        #products { margin-top: 20px; border-top: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>E-Commerce Demo</h1>
+    
+    <!-- Product List -->
+    <h2>Products</h2>
+    <button onclick="loadProducts()">Load Products</button>
+    <div id="products"></div>
+
+    <!-- Create Order -->
+    <h2>Create Order</h2>
+    <input id="productId" placeholder="Product ID">
+    <input id="userId" placeholder="User ID" value="user123">
+    <button onclick="createOrder()">Place Order</button>
+    <p id="orderResult"></p>
+
+    <script>
+        const API_URL = "http://localhost:8000";
+        
+        // Load products from backend
+        async function loadProducts() {
+            const response = await fetch(`${API_URL}/inventory/products`, {
+                headers: { 'X-API-Key': 'testkey' }
+            });
+            const products = await response.json();
+            
+            document.getElementById("products").innerHTML = 
+                products.map(p => `
+                    <div>
+                        <strong>${p.name}</strong> ($${p.price}) 
+                        <small>ID: ${p._id}</small>
+                    </div>
+                `).join("");
+        }
+
+        // Create order
+        async function createOrder() {
+            const order = {
+                user_id: document.getElementById("userId").value,
+                items: [{
+                    product_id: document.getElementById("productId").value,
+                    quantity: 1,
+                    price: 999.99 // You'd fetch this from your API in a real app
+                }],
+                total: 999.99
+            };
+
+            const response = await fetch(`${API_URL}/orders/orders`, {
+                method: "POST",
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-API-Key': 'testkey' 
+                },
+                body: JSON.stringify(order)
+            });
+
+            document.getElementById("orderResult").innerHTML = 
+                `Order created! Status: ${response.status}`;
+        }
+    </script>
+</body>
+</html>
